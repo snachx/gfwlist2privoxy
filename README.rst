@@ -1,15 +1,15 @@
 GFWList2Privoxy
 ===========
 
-[![Build Status](https://travis-ci.org/snachx/gfwlist2privoxy.png?branch=master)](https://travis-ci.org/snachx/gfwlist2privoxy)
+|Build Status|
 
-Generate action file for privoxy from gfwlist, inspired by clowwindy's [gfwlist2pac] [1]and modified from it.
+Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist_ and modified from it.
 
-### Usage
+::
 
     pip install gfwlist2privoxy
-    
-    usage: gfwlist2privoxy [-h] [-i GFWLIST] -f ACTION -p PROXY -t PROXY_TYPE [--user-rule USER_RULE]
+
+    usage: main.py [-h] [-i GFWLIST] -f ACTION -p PROXY -t PROXY_TYPE [--user-rule USER_RULE]
 
     detail arguments:
       -h, --help                    show this help message and exit
@@ -27,11 +27,6 @@ Generate action file for privoxy from gfwlist, inspired by clowwindy's [gfwlist2
 
     Please set https proxy in your system if you ignore the argument GFWLIST.
 
-### Example Action File
-
-An example of generated action file is [here] [1].
-
-
-
-[1]: https://github.com/clowwindy/gfwlist2pac
-[2]: https://github.com/snachx/gfwlist2privoxy/blob/master/test/gfwlist.action
+.. |Build Status| image:: https://travis-ci.org/snachx/gfwlist2privoxy.png?branch=master
+   :target: https://travis-ci.org/snachx/gfwlist2privoxy
+.. _gfwlist: https://github.com/clowwindy/gfwlist2pac
