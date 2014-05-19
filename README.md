@@ -3,7 +3,7 @@ GFWList2Privoxy
 
 [![Build Status](https://travis-ci.org/snachx/gfwlist2privoxy.png?branch=master)](https://travis-ci.org/snachx/gfwlist2privoxy)
 
-Generate action file for privoxy from gfwlist, inspired by clowwindy's [gfwlist2pac] [1]and modified from it.
+Generate action file for privoxy from gfwlist, inspired by clowwindy's [gfwlist2pac] [1] and modified from it.
 
 ### Usage
 
@@ -11,7 +11,7 @@ Generate action file for privoxy from gfwlist, inspired by clowwindy's [gfwlist2
     
     usage: gfwlist2privoxy [-h] [-i GFWLIST] -f ACTION -p PROXY -t PROXY_TYPE [--user-rule USER_RULE]
 
-    detail arguments:
+    optional arguments:
       -h, --help                    show this help message and exit
 
       -i GFWLIST, --input GFWLIST   path to the gfwlist, ignore to download from Internet
@@ -29,7 +29,7 @@ Generate action file for privoxy from gfwlist, inspired by clowwindy's [gfwlist2
 
 ### Example Action File
 
-An example of generated action file is [here] [1].
+An example of generated action file is [here] [2].
 
 
 
