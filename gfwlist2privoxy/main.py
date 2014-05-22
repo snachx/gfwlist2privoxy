@@ -16,7 +16,7 @@ gfwlist_url = 'https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument('-i', '--input', dest='input', 
+    parser.add_argument('-i', '--input', dest='input',
                         help='path to gfwlist, ignore to download from Internet', metavar='GFWLIST')
     parser.add_argument('-f', '--file', dest='output', required=True,
                         help='path to the output action file', metavar='ACTION')
@@ -47,7 +47,7 @@ def get_hostname(something):
         r = urlparse.urlparse(something)
         return r.hostname
     except Exception as e:
-        logging.error(e) 
+        logging.error(e)
         return None
 
 
@@ -116,13 +116,14 @@ def reduce_domains(domains):
     return new_domains
 
 
-def generate_action(domains, proxy, type):
+def generate_action(domains, proxy, proxy_type):
     # render the action file
     proxy_content = pkgutil.get_data('gfwlist2privoxy', 'resources/gfwlist.action')
-    forward_type = 'forward'
-    if type != 'http':
-        forward_type = 'forward' + '-' + type
-    forward_string = forward_type + ' ' + proxy + ' .'
+    if proxy_type == 'http':
+        forward_string = 'forward ' + proxy
+    else:
+        forward_type = 'forward' + '-' + proxy_type
+        forward_string = forward_type + ' ' + proxy + ' .'
     proxy_content = proxy_content.replace('__FORWARDER__', forward_string)
     domains_string = ''
     for domain in domains:
@@ -145,15 +146,15 @@ def main():
         content = urllib2.urlopen(gfwlist_url, timeout=10).read()
     if args.user_rule:
         with open(args.user_rule, 'rb') as f:
-            user_rule = f.read() 
-        
+            user_rule = f.read()
+
     content = decode_gfwlist(content)
     domains = parse_gfwlist(content, user_rule)
     domains = reduce_domains(domains)
     pac_content = generate_action(domains, args.proxy, args.type)
     with open(args.output, 'wb') as f:
         f.write(pac_content)
-        
+
 
 if __name__ == '__main__':
     main()
