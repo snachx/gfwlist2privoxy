@@ -1,7 +1,10 @@
 GFWList2Privoxy
-===========
+==============================================================
 
 |Build Status|
+
+Usage
+--------------------------------------------------------------
 
 Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist_ and modified from it.
 
@@ -9,7 +12,7 @@ Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist_ 
 
     pip install gfwlist2privoxy
 
-    usage: main.py [-h] [-i GFWLIST] -f ACTION -p PROXY -t PROXY_TYPE [--user-rule USER_RULE]
+    usage: main.py [-h] [-i GFWLIST] -f ACTION -p PROXY -t TYPE [--user-rule USER_RULE]
 
     detail arguments:
       -h, --help                    show this help message and exit
@@ -27,6 +30,11 @@ Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist_ 
 
     Please set https proxy in your system if you ignore the argument GFWLIST.
 
+Example Action File
+----------------------------------------------------------
+An example of generated action file is here_.
+
 .. |Build Status| image:: https://travis-ci.org/snachx/gfwlist2privoxy.png?branch=master
    :target: https://travis-ci.org/snachx/gfwlist2privoxy
 .. _gfwlist: https://github.com/clowwindy/gfwlist2pac
+.. _here: https://github.com/snachx/gfwlist2privoxy/blob/master/test/gfwlist.action

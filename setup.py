@@ -1,11 +1,11 @@
 from setuptools import setup
 
-with open('README.rst') as f:                                                                   
+with open('README.rst') as f:
     long_description = f.read()
 
 setup(
     name="gfwlist2privoxy",
-    version="1.0",
+    version="1.0.2",
     license='MIT',
     description="convert gfwlist to privoxy action file",
     author='snachx',
