@@ -6,7 +6,7 @@ GFWList2Privoxy
 Usage
 --------------------------------------------------------------
 
-Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist_ and modified from it.
+Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist2pac_ and modified from it.
 
 ::
 
@@ -36,5 +36,5 @@ An example of generated action file is here_.
 
 .. |Build Status| image:: https://travis-ci.org/snachx/gfwlist2privoxy.png?branch=master
    :target: https://travis-ci.org/snachx/gfwlist2privoxy
-.. _gfwlist: https://github.com/clowwindy/gfwlist2pac
+.. _gfwlist2pac: https://github.com/clowwindy/gfwlist2pac
 .. _here: https://github.com/snachx/gfwlist2privoxy/blob/master/test/gfwlist.action
