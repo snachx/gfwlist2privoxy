@@ -6,6 +6,7 @@ import urlparse
 import logging
 import urllib2
 import time
+import re
 from argparse import ArgumentParser
 
 __all__ = ['main']
@@ -17,7 +18,7 @@ gfwlist_url = 'https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('-i', '--input', dest='input',
-                        help='path to gfwlist, ignore to download from Internet', metavar='GFWLIST')
+                        help='local path or remote url of gfwlist, ignore to use default address', metavar='GFWLIST')
     parser.add_argument('-f', '--file', dest='output', required=True,
                         help='path to the output action file', metavar='ACTION')
     parser.add_argument('-p', '--proxy', dest='proxy', required=True,
@@ -134,13 +135,28 @@ def generate_action(domains, proxy, proxy_type):
     proxy_content = proxy_content.replace('__TIME__', format_time)
     return proxy_content
 
+def is_url(input):
+    # URL validator copied from django
+    regex = re.compile(
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain...
+        r'localhost|' # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|' # ...or ipv4
+        r'\[?[A-F0-9]*:[A-F0-9:]+\]?)' # ...or ipv6
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return regex.match(input)
 
 def main():
     args = parse_args()
     user_rule = None
     if args.input:
-        with open(args.input, 'rb') as f:
-            content = f.read()
+        if is_url(args.input):
+            print 'Downloading gfwlist from %s' % args.input
+            content = urllib2.urlopen(args.input, timeout=10).read()
+        else:
+            with open(args.input, 'rb') as f:
+                content = f.read()
     else:
         print 'Downloading gfwlist from %s' % gfwlist_url
         content = urllib2.urlopen(gfwlist_url, timeout=10).read()
