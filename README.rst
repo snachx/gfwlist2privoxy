@@ -17,7 +17,7 @@ Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist2p
     detail arguments:
       -h, --help                    show this help message and exit
 
-      -i GFWLIST, --input GFWLIST   path to the gfwlist, ignore to download from Internet
+      -i GFWLIST, --input GFWLIST   local path or remote url of gfwlist, ignore to use default address
 
       -f ACTION, --file ACTION      path to the output action file
 
