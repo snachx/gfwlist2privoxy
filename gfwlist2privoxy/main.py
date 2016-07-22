@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 __all__ = ['main']
 
 
-gfwlist_url = 'https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
+gfwlist_url = 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
 
 
 def parse_args():
