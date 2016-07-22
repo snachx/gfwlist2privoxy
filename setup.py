@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name="gfwlist2privoxy",
-    version="1.0.2",
+    version="1.0.3",
     license='MIT',
     description="convert gfwlist to privoxy action file",
     author='snachx',
