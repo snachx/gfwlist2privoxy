@@ -1,25 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pkgutil
 import urlparse
 import logging
 import urllib2
 import time
 import re
+import os
 from argparse import ArgumentParser
 
 __all__ = ['main']
 
 
 gfwlist_url = 'https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt'
+gfwlist2privoxy_dir = os.path.split(os.path.realpath(__file__))[0]
 
 
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('-i', '--input', dest='input',
                         help='local path or remote url of gfwlist, ignore to use default address', metavar='GFWLIST')
-    parser.add_argument('-f', '--file', dest='output', required=True,
+    parser.add_argument('-f', '--file', dest='output', default='gfwlist.action',
                         help='path to the output action file', metavar='ACTION')
     parser.add_argument('-p', '--proxy', dest='proxy', required=True,
                         help='the proxy in the action file, for example, \
@@ -29,6 +30,8 @@ def parse_args():
                         "http socks4 socks4a socks5 socks5t"', metavar='TYPE')
     parser.add_argument('--user-rule', dest='user_rule',
                         help='user rule file, which will be appended to gfwlist')
+    parser.add_argument('-w', '--white-file', dest='output_white', default='white.action',
+                        help='path to the output white list file', metavar='ACTION')
     return parser.parse_args()
 
 
@@ -64,11 +67,16 @@ def add_domain_to_set(s, something):
 
 
 def parse_gfwlist(content, user_rule=None):
-    builtin_rules = pkgutil.get_data('gfwlist2privoxy', 'resources/builtin.txt').splitlines(False)
+    builtin_rules = open(os.path.join(gfwlist2privoxy_dir, 'resources/builtin.txt'), 'rb').read().splitlines(False)
     gfwlist = content.splitlines(False)
-    if user_rule:
-        gfwlist.extend(user_rule.splitlines(False))
     domains = set(builtin_rules)
+    domains_white = set()
+    if user_rule:
+        usrlist = user_rule.splitlines(False)
+        gfwlist.extend(usrlist)
+        for line in usrlist:
+            if line.startswith('@@'):
+                add_domain_to_set(domains_white, line.lstrip('@@'))
     for line in gfwlist:
         if line.find('.*') >= 0:
             continue
@@ -89,15 +97,16 @@ def parse_gfwlist(content, user_rule=None):
             add_domain_to_set(domains, line.lstrip('.'))
         else:
             add_domain_to_set(domains, line)
-    return domains
+    return domains,domains_white
 
 
-def reduce_domains(domains):
+def reduce_domains(domains,domains_white):
     # reduce 'www.google.com' to 'google.com'
     # remove invalid domains
-    tld_content = pkgutil.get_data('gfwlist2privoxy', 'resources/tld.txt')
+    tld_content = open(os.path.join(gfwlist2privoxy_dir, 'resources/tld.txt'), 'rb').read()
     tlds = set(tld_content.splitlines(False))
     new_domains = set()
+    new_domains_white = set()
     for domain in domains:
         domain_parts = domain.split('.')
         last_root_domain = None
@@ -114,12 +123,16 @@ def reduce_domains(domains):
                 break
         if last_root_domain is not None:
             new_domains.add(last_root_domain)
-    return new_domains
+
+    if domains_white:
+        for domain in domains_white:
+                new_domains_white.add(domain)
+    return new_domains,new_domains_white
 
 
-def generate_action(domains, proxy, proxy_type):
+def generate_action(domains, domains_white, proxy, proxy_type):
     # render the action file
-    proxy_content = pkgutil.get_data('gfwlist2privoxy', 'resources/gfwlist.action')
+    proxy_content = open(os.path.join(gfwlist2privoxy_dir, 'resources/gfwlist.action'), 'rb').read()
     if proxy_type == 'http':
         forward_string = 'forward ' + proxy
     else:
@@ -133,7 +146,17 @@ def generate_action(domains, proxy, proxy_type):
     gen_time = time.localtime()
     format_time = time.strftime("%Y-%m-%d %X %z", gen_time)
     proxy_content = proxy_content.replace('__TIME__', format_time)
-    return proxy_content
+
+    if domains_white:
+        white_content = open(os.path.join(gfwlist2privoxy_dir, 'resources/white.action'), 'rb').read()
+        domains_white_string = ''
+        for domain in domains_white:
+            domains_white_string += '.' + domain + '\n'
+        white_content = white_content.replace('__DOMAINS__', domains_white_string)
+        white_content = white_content.replace('__TIME__', format_time)
+    else:
+        white_content = None
+    return proxy_content,white_content
 
 def is_url(input):
     # URL validator copied from django
@@ -165,11 +188,14 @@ def main():
             user_rule = f.read()
 
     content = decode_gfwlist(content)
-    domains = parse_gfwlist(content, user_rule)
-    domains = reduce_domains(domains)
-    pac_content = generate_action(domains, args.proxy, args.type)
+    domains, domains_white = parse_gfwlist(content, user_rule)
+    domains, domains_white = reduce_domains(domains, domains_white)
+    pac_content, white_content = generate_action(domains, domains_white, args.proxy, args.type)
     with open(args.output, 'wb') as f:
         f.write(pac_content)
+    if white_content:
+        with open(args.output_white, 'wb') as f:
+            f.write(white_content)
 
 
 if __name__ == '__main__':
