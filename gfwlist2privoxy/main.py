@@ -126,6 +126,20 @@ def reduce_domains(domains,domains_white):
 
     if domains_white:
         for domain in domains_white:
+            domain_parts = domain.split('.')
+            last_root_domain = None
+            for i in xrange(0, len(domain_parts)):
+                root_domain = '.'.join(domain_parts[len(domain_parts) - i - 1:])
+                if i == 0:
+                    if not tlds.__contains__(root_domain):
+                        # root_domain is not a valid tld
+                        break
+                last_root_domain = root_domain
+                if tlds.__contains__(root_domain):
+                    continue
+                else: 
+                    break 
+            if last_root_domain is not None: 
                 new_domains_white.add(domain)
     return new_domains,new_domains_white
 
