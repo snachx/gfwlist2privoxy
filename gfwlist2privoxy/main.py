@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import base64
 import pkgutil
-import urlparse
+from urllib import parse, request
 import logging
-import urllib2
 import time
 from argparse import ArgumentParser
 
 __all__ = ['main']
 
 
-gfwlist_url = 'https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt'
+gfwlist_url = 'https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt'
 
 
 def parse_args():
@@ -34,8 +34,8 @@ def parse_args():
 def decode_gfwlist(content):
     # decode base64 if have to
     try:
-        return content.decode('base64')
-    except StandardError:
+        return base64.b64decode(content)
+    except Exception:
         return content
 
 
@@ -44,7 +44,7 @@ def get_hostname(something):
         # quite enough for GFW
         if not something.startswith('http:'):
             something = 'http://' + something
-        r = urlparse.urlparse(something)
+        r = parse.urlparse(something)
         return r.hostname
     except Exception as e:
         logging.error(e)
@@ -63,44 +63,45 @@ def add_domain_to_set(s, something):
 
 
 def parse_gfwlist(content, user_rule=None):
-    builtin_rules = pkgutil.get_data('gfwlist2privoxy', 'resources/builtin.txt').splitlines(False)
+    builtin_rules = pkgutil.get_data('resources', 'builtin.txt').decode('utf-8').splitlines(False)
     gfwlist = content.splitlines(False)
     if user_rule:
         gfwlist.extend(user_rule.splitlines(False))
     domains = set(builtin_rules)
     for line in gfwlist:
-        if line.find('.*') >= 0:
+        sline = line.decode('utf-8')
+        if sline.find('.*') >= 0:
             continue
-        elif line.find('*') >= 0:
-            line = line.replace('*', '/')
-        if line.startswith('!'):
+        elif sline.find('*') >= 0:
+            sline = sline.replace('*', '/')
+        if sline.startswith('!'):
             continue
-        elif line.startswith('['):
+        elif sline.startswith('['):
             continue
-        elif line.startswith('@'):
+        elif sline.startswith('@'):
             # ignore white list
             continue
-        elif line.startswith('||'):
-            add_domain_to_set(domains, line.lstrip('||'))
-        elif line.startswith('|'):
-            add_domain_to_set(domains, line.lstrip('|'))
-        elif line.startswith('.'):
-            add_domain_to_set(domains, line.lstrip('.'))
+        elif sline.startswith('||'):
+            add_domain_to_set(domains, sline.lstrip('||'))
+        elif sline.startswith('|'):
+            add_domain_to_set(domains, sline.lstrip('|'))
+        elif sline.startswith('.'):
+            add_domain_to_set(domains, sline.lstrip('.'))
         else:
-            add_domain_to_set(domains, line)
+            add_domain_to_set(domains, sline)
     return domains
 
 
 def reduce_domains(domains):
     # reduce 'www.google.com' to 'google.com'
     # remove invalid domains
-    tld_content = pkgutil.get_data('gfwlist2privoxy', 'resources/tld.txt')
+    tld_content = pkgutil.get_data('resources', 'tld.txt').decode('utf-8')
     tlds = set(tld_content.splitlines(False))
     new_domains = set()
     for domain in domains:
         domain_parts = domain.split('.')
         last_root_domain = None
-        for i in xrange(0, len(domain_parts)):
+        for i in range(0, len(domain_parts)):
             root_domain = '.'.join(domain_parts[len(domain_parts) - i - 1:])
             if i == 0:
                 if not tlds.__contains__(root_domain):
@@ -118,7 +119,7 @@ def reduce_domains(domains):
 
 def generate_action(domains, proxy, proxy_type):
     # render the action file
-    proxy_content = pkgutil.get_data('gfwlist2privoxy', 'resources/gfwlist.action')
+    proxy_content = pkgutil.get_data('resources', 'gfwlist.action').decode('utf-8')
     if proxy_type == 'http':
         forward_string = 'forward ' + proxy
     else:
@@ -142,8 +143,8 @@ def main():
         with open(args.input, 'rb') as f:
             content = f.read()
     else:
-        print 'Downloading gfwlist from %s' % gfwlist_url
-        content = urllib2.urlopen(gfwlist_url, timeout=10).read()
+        print('Downloading gfwlist from %s' % gfwlist_url)
+        content = request.urlopen(gfwlist_url, timeout=10).read()
     if args.user_rule:
         with open(args.user_rule, 'rb') as f:
             user_rule = f.read()
@@ -152,7 +153,7 @@ def main():
     domains = parse_gfwlist(content, user_rule)
     domains = reduce_domains(domains)
     pac_content = generate_action(domains, args.proxy, args.type)
-    with open(args.output, 'wb') as f:
+    with open(args.output, 'wt') as f:
         f.write(pac_content)
 
 
