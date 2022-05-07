@@ -8,11 +8,13 @@ Usage
 
 Generate action file for privoxy from gfwlist, inspired by clowwindy's gfwlist2pac_ and modified from it.
 
+It requires Python 3.6+ to run, if you need to run it under Python 2.7.x, please use 1.x of gfwlist2privoxy.
+
 ::
 
     pip install gfwlist2privoxy
 
-    usage: main.py [-h] [-i GFWLIST] -f ACTION -p PROXY -t TYPE [--user-rule USER_RULE]
+    usage: gfwlist2privoxy [-h] [-i GFWLIST] -f ACTION -p PROXY -t TYPE [--user-rule USER_RULE]
 
     detail arguments:
       -h, --help                    show this help message and exit

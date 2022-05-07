@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name="gfwlist2privoxy",
-    version="1.1.0",
+    version="2.0.0",
     license='MIT',
     description="convert gfwlist to privoxy action file",
     author='snachx',
@@ -15,7 +15,7 @@ setup(
     package_data={
         'gfwlist2privoxy': ['README.rst', 'LICENSE', 'resources/*']
     },
-    python_requires=">=2.7, <3.0",
+    python_requires=">=3.6",
     install_requires=[],
     entry_points="""
     [console_scripts]
@@ -23,8 +23,12 @@ setup(
     """,
     classifiers=[
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     long_description=long_description,
 )

@@ -72,7 +72,7 @@ def decode_gfwlist(content):
     try:
         if "." in content:
             raise Exception()
-        return base64.b64decode(content)
+        return base64.b64decode(content).decode('utf-8')
     except Exception as e:
         print(e)
         return content
@@ -104,7 +104,7 @@ def add_domain_to_set(s, something):
 def parse_gfwlist(content, user_rule=None):
     builtin_rules = pkgutil.get_data(
         "gfwlist2privoxy.resources", "builtin.txt"
-    ).splitlines(False)
+    ).decode("utf-8").splitlines(False)
     gfwlist = content.splitlines(False)
     domains = set(builtin_rules)
     domains_white = set()
@@ -141,7 +141,7 @@ def parse_gfwlist(content, user_rule=None):
 def reduce_domains(domains, domains_white):
     # reduce 'www.google.com' to 'google.com'
     # remove invalid domains
-    tld_content = pkgutil.get_data("gfwlist2privoxy.resources", "tld.txt")
+    tld_content = pkgutil.get_data("gfwlist2privoxy.resources", "tld.txt").decode("utf-8")
     tlds = set(tld_content.splitlines(False))
     new_domains = set()
     new_domains_white = set()
@@ -184,7 +184,7 @@ def reduce_domains(domains, domains_white):
 
 def generate_action(domains, domains_white, proxy, proxy_type):
     # render the action file
-    proxy_content = pkgutil.get_data("gfwlist2privoxy.resources", "gfwlist.action")
+    proxy_content = pkgutil.get_data("gfwlist2privoxy.resources", "gfwlist.action").decode("utf-8")
     if proxy_type == "http":
         forward_string = "forward " + proxy
     else:
@@ -200,7 +200,7 @@ def generate_action(domains, domains_white, proxy, proxy_type):
     proxy_content = proxy_content.replace("__TIME__", format_time)
 
     if domains_white:
-        white_content = pkgutil.get_data("gfwlist2privoxy.resources", "white.action")
+        white_content = pkgutil.get_data("gfwlist2privoxy.resources", "white.action").decode("utf-8")
         domains_white_string = ""
         for domain in domains_white:
             domains_white_string += "." + domain + "\n"
@@ -232,13 +232,13 @@ def main():
     if args.input:
         if is_url(args.input):
             print("Downloading gfwlist from %s" % args.input)
-            content = urllib.request.urlopen(args.input, timeout=10).read()
+            content = urllib.request.urlopen(args.input, timeout=10).read().decode('utf-8')
         else:
             with open(args.input, "r") as f:
                 content = f.read()
     else:
         print("Downloading gfwlist from %s" % gfwlist_url)
-        content = urllib.request.urlopen(gfwlist_url, timeout=10).read()
+        content = urllib.request.urlopen(gfwlist_url, timeout=10).read().decode('utf-8')
     if args.user_rule:
         with open(args.user_rule, "r") as f:
             user_rule = f.read()
@@ -253,10 +253,10 @@ def main():
     pac_content, white_content = generate_action(
         domains, domains_white, args.proxy, args.type
     )
-    with open(args.output, "wb") as f:
+    with open(args.output, "w") as f:
         f.write(pac_content)
     if white_content:
-        with open(args.output_white, "wb") as f:
+        with open(args.output_white, "w") as f:
             f.write(white_content)
 
 
