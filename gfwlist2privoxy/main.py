@@ -251,7 +251,7 @@ def main():
     domains, domains_white = reduce_domains(domains, domains_white)
     print("Regenerate action file")
     pac_content, white_content = generate_action(
-        domains, domains_white, args.proxy, args.type
+        sorted(domains), sorted(domains_white), args.proxy, args.type
     )
     with open(args.output, "w") as f:
         f.write(pac_content)
